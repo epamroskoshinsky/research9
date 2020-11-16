@@ -14,7 +14,6 @@ export function useProfiler ( name:string ):void {
 
     if ( profiles.has( name ) ) {
         profile = profiles.get( name ) as ProfileInterface;
-        profile.render++;
     } else {
         profile = {
             render: 0,
@@ -34,4 +33,5 @@ export function useProfiler ( name:string ):void {
     }, [] );
     profile.render++;
     console.log( "profiler", name, "render", profile.render );
+
 }

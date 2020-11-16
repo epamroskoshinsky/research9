@@ -4,20 +4,15 @@ import React, {
     useState,
     useCallback,
     PropsWithChildren,
-    ReactElement,
 } from "react";
 import {
     LayoutContextInterface,
     LayoutModes,
-    isLayoutMode,
 } from "./LayoutTypes";
-import { LAYOUT_MODE_LOCALSTORAGE_KEY } from "./LayoutConstants";
 import { useProfiler } from "../../utils/useProfiler";
 
-const layoutModeLocalStorage = window.localStorage.getItem( LAYOUT_MODE_LOCALSTORAGE_KEY );
-
 export const LayoutContext = createContext<LayoutContextInterface>( {
-    layoutMode: LayoutModes.SIDEBAR_HEADER_CONTENT,
+    layoutMode: undefined,
     setLayoutMode: (_:LayoutModes) => {},
     toggleStructure: () => {},
 } );
@@ -26,38 +21,19 @@ export const useLayout = () => useContext( LayoutContext );
 
 export function LayoutProvider ( { children }:PropsWithChildren<{}> ) {
 
-    const [ layoutMode, _setLayoutMode ] = useState<LayoutModes>( () =>
-        isLayoutMode( layoutModeLocalStorage ) && layoutModeLocalStorage ||
-        LayoutModes.SIDEBAR_HEADER_CONTENT
-    );
+    const [ layoutMode, _setLayoutMode ] = useState<LayoutModes|undefined>( undefined );
 
-    const setLayoutMode = useCallback( ( layoutModeNew, compatibility ) => {
-        if (
-            compatibility &&
-            (
-                (
-                    layoutModeNew === LayoutModes.SIDEBAR_HEADER_CONTENT &&
-                    layoutMode === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT
-                ) ||
-                (
-                    layoutModeNew === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT &&
-                    layoutMode === LayoutModes.SIDEBAR_HEADER_CONTENT
-                )    
-            )
-        ) {
-            return;
-        }
+    const setLayoutMode = useCallback( ( layoutModeNew ) => {
         if ( layoutModeNew !== layoutMode ) {
-            window.localStorage.setItem( "layoutMode", layoutModeNew );
             _setLayoutMode( layoutModeNew );
         }
     }, [ layoutMode ] );
 
     const toggleStructure = useCallback( () => {
         if ( layoutMode === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT ) {
-            setLayoutMode( LayoutModes.SIDEBAR_HEADER_CONTENT, false );
+            setLayoutMode( LayoutModes.SIDEBAR_HEADER_CONTENT );
         } else if ( layoutMode === LayoutModes.SIDEBAR_HEADER_CONTENT ) {
-            setLayoutMode( LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT, false );
+            setLayoutMode( LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT );
         }
     }, [ layoutMode ] );
 

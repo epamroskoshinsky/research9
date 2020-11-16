@@ -1,17 +1,15 @@
 import "./index.scss";
-import React, { useMemo } from "react";
+import React, { memo } from "react";
 import {
     Layout,
     useLayout,
-    LayoutModes,
-    LayoutModeSet
+    LayoutModes
 } from "../Layout";
 import {
     BrowserRouter as Router,
     Switch,
     Route,
     Link,
-    withRouter
   } from "react-router-dom";
 import { UnitA } from "../Units/UnitA";
 import { UnitB } from "../Units/UnitB";
@@ -20,7 +18,7 @@ import { PageNotFound } from "../Pages/PageNotFound";
 import { PageAccessDenied } from "../Pages/PageAccessDenied";
 import { useProfiler } from "../../utils/useProfiler";
 
-function NavigationSidebar () {
+const NavigationSidebar = memo( function NavigationSidebar () {
     useProfiler( "NavigationSidebar" );
     return (
         <div className="navigationSidebar" >
@@ -31,14 +29,14 @@ function NavigationSidebar () {
             </ul>
         </div>
     );
-}
+} );
 
-function NavigationStructure () {
+const NavigationStructure = memo( function NavigationStructure () {
     useProfiler( "NavigationStructure" );
     return <div className="navigationStructure" ></div>;
-}
+} );
 
-function NavigationHeader () {
+const NavigationHeader = memo( function NavigationHeader () {
     const { toggleStructure } = useLayout();
     useProfiler( "NavigationHeader" );
     return (
@@ -52,7 +50,7 @@ function NavigationHeader () {
             </ul>
         </div>
     );
-}
+} );
 
 function NavigationHeader2 () {
     const { toggleStructure } = useLayout();
@@ -70,52 +68,53 @@ function NavigationHeader2 () {
     );
 }
 
-function RoutersUnit () {
-    useProfiler( "RoutersUnit" );
-    return (
-        <div className="content" >            
-            <Switch>
-                <Route path="/a" exact >
-                    <LayoutModeSet layoutMode={ LayoutModes.SIDEBAR_HEADER_CONTENT } layoutCompatibility >
-                        <UnitA />
-                    </LayoutModeSet>
-                </Route>
-                <Route path="/b" exact >
-                    <LayoutModeSet layoutMode={ LayoutModes.SIDEBAR_HEADER_CONTENT } layoutCompatibility >
-                        <UnitB />
-                    </LayoutModeSet>
-                </Route>
-                <Route path="/c" exact >
-                    <LayoutModeSet layoutMode={ LayoutModes.SIDEBAR_HEADER_CONTENT } layoutCompatibility >
-                        <UnitC />
-                    </LayoutModeSet>
-                </Route>
-                <Route path="/403" exact >
-                    <LayoutModeSet layoutMode={ LayoutModes.SIDEBAR_CONTENT } >
-                        <PageAccessDenied />
-                    </LayoutModeSet>
-                </Route>
-                <Route path="*" >
-                    <LayoutModeSet layoutMode={ LayoutModes.SIDEBAR_CONTENT } >
-                        <PageNotFound />
-                    </LayoutModeSet>
-                </Route>
-            </Switch>
-        </div>
-    );
-}
-
 export function App () {
     useProfiler( "App" );
+
     return (
         <Router>
-            <Layout
-                content={ <RoutersUnit /> }
-                navigationHeader={ <NavigationHeader /> }
-                navigationHeader2={ <NavigationHeader2 /> }
-                navigationSidebar={ <NavigationSidebar /> }
-                navigationStructure={ <NavigationStructure /> }
-            />
+            <div className="content" >
+                <Switch>
+                    <Route path="/a" exact >
+                        <Layout
+                            content={ <UnitA /> }
+                            navigationHeader={ <NavigationHeader /> }
+                            navigationSidebar={ <NavigationSidebar /> }
+                            navigationStructure={ <NavigationStructure /> }
+                        />
+                    </Route>
+                    <Route path="/b" exact >
+                        <Layout
+                            content={ <UnitB /> }
+                            navigationHeader={ <NavigationHeader2 /> }
+                            navigationSidebar={ <NavigationSidebar /> }
+                            navigationStructure={ <NavigationStructure /> }
+                        />
+                    </Route>
+                    <Route path="/c" exact >
+                        <Layout
+                            content={ <UnitC /> }
+                            navigationHeader={ <NavigationHeader /> }
+                            navigationSidebar={ <NavigationSidebar /> }
+                            navigationStructure={ <NavigationStructure /> }
+                        />
+                    </Route>
+                    <Route path="/403" exact >
+                        <Layout
+                            layoutMode={ LayoutModes.SIDEBAR_CONTENT }
+                            content={ <PageAccessDenied /> }
+                            navigationSidebar={ <NavigationSidebar /> }
+                        />
+                    </Route>
+                    <Route path="*" >
+                        <Layout
+                            layoutMode={ LayoutModes.SIDEBAR_CONTENT }
+                            content={ <PageNotFound /> }
+                            navigationSidebar={ <NavigationSidebar /> }
+                        /> 
+                    </Route>
+                </Switch>
+            </div>
         </Router>
     );
 }

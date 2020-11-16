@@ -16,10 +16,28 @@ import {
 import {
     NAVIGATION_STRUCTURE_ANIMATION_DURATION
 } from "./LayoutConstants";
-import { LayoutInstance, LayoutModes, LayoutProps } from "./LayoutTypes";
+import { isLayoutMode, LayoutInstance, LayoutModes, LayoutProps } from "./LayoutTypes";
 import { useProfiler } from "../../utils/useProfiler";
+import { LAYOUT_MODE_LOCALSTORAGE_KEY } from "./LayoutConstants";
+
+const layoutModeLocalStorage = function ( layoutMode?:LayoutModes ) {
+    const layoutModeLocalStorage_ = window.localStorage.getItem( LAYOUT_MODE_LOCALSTORAGE_KEY );
+    if ( 
+        layoutMode &&
+        [
+            LayoutModes.SIDEBAR_HEADER_CONTENT,
+            LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT
+        ].includes( layoutMode )
+    ) {
+        window.localStorage.setItem( LAYOUT_MODE_LOCALSTORAGE_KEY, layoutMode );
+        return layoutMode;
+    }
+    return layoutModeLocalStorage_;
+}
+
 
 export function Layout ( {
+    layoutMode: layoutMode_,
     navigationSidebar,
     navigationHeader,
     navigationStructure,
@@ -27,11 +45,10 @@ export function Layout ( {
 }:LayoutProps ) {
 
     const [ , _render ] = useState( 0 );
-    const { layoutMode } = useLayout();
+    const { layoutMode, setLayoutMode } = useLayout();
     const instance = useRef<LayoutInstance>( {
-        classNames: ""
+        classNames: "",
     } ).current;
-
     const render = useCallback( () => _render( _ => ++_ ), []);
 
     const setRef = useCallback( ( element ) => {
@@ -58,12 +75,14 @@ export function Layout ( {
                             }
                         }, NAVIGATION_STRUCTURE_ANIMATION_DURATION );
                         instance.classNames = "animation_structure_out";
+                        layoutModeLocalStorage( layoutModeNew );
                         render();
                     } else if (
                         instance.layoutModeRequest === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT &&
                         instance.layoutModeCurrent === LayoutModes.SIDEBAR_HEADER_CONTENT
                     ) {
                         instance.layoutModeCurrent = layoutModeNew;
+                        layoutModeLocalStorage( layoutModeNew );
                         setTimeout( () => {
                             instance.classNames = "";
                             render();
@@ -71,6 +90,7 @@ export function Layout ( {
                         instance.classNames = "animation_structure_in";
                         render();
                     } else {
+                        layoutModeLocalStorage( layoutModeNew );
                         instance.layoutModeCurrent = layoutModeNew;
                         render();
                     }
@@ -92,43 +112,67 @@ export function Layout ( {
     } );
 
     useEffect( () => {
-        if ( instance.changeLayoutMode ) {
+        instance.changeLayoutMode &&
+            isLayoutMode( layoutMode ) &&
             instance.changeLayoutMode( layoutMode );
-        }
     }, [ layoutMode, instance ] );
+
+    useEffect ( () => {
+        let layoutMode__;
+        if ( !layoutMode ) {
+            layoutMode__ = layoutMode_ ||
+                layoutModeLocalStorage() ||
+                LayoutModes.SIDEBAR_HEADER_CONTENT; 
+        } else if ( !layoutMode_ ) {
+            layoutMode__ = layoutModeLocalStorage() ||
+                LayoutModes.SIDEBAR_HEADER_CONTENT; 
+        }
+        isLayoutMode( layoutMode__ ) && setLayoutMode( layoutMode__ );
+    } );
+
+    useEffect( () => {
+        window.scroll( 0, 0 );
+    }, [ content ] );
+
+    const getLayoutModeView = useCallback( () => {
+        if ( !instance.layoutModeCurrent ) {
+            return null;
+        }
+        return  ( 
+            instance.layoutModeCurrent === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT ? (
+                <>
+                    <GridWrapperNavigationSidebar item>{navigationSidebar}</GridWrapperNavigationSidebar>
+                    <GridWrapperNavigationStructure item>{navigationStructure}</GridWrapperNavigationStructure>
+                    <GridWrapperMain container direction="column">
+                        <GridWrapperNavigationHeader structure item>{navigationHeader}</GridWrapperNavigationHeader>
+                        <GridWrapperContent structure header item>{content}</GridWrapperContent>
+                    </GridWrapperMain>
+                </>
+            ) :
+            instance.layoutModeCurrent === LayoutModes.SIDEBAR_CONTENT ? (
+                <>
+                    <GridWrapperNavigationSidebar item>{ navigationSidebar }</GridWrapperNavigationSidebar>
+                    <GridWrapperMain direction="column" container>
+                        <GridWrapperContent item>{ content }</GridWrapperContent>
+                    </GridWrapperMain>
+                </>
+            ) : ( 
+                <>
+                    <GridWrapperNavigationSidebar item>{ navigationSidebar }</GridWrapperNavigationSidebar>
+                    <GridWrapperMain direction="column" container>
+                        <GridWrapperNavigationHeader item>{ navigationHeader }</GridWrapperNavigationHeader>
+                        <GridWrapperContent header item>{ content }</GridWrapperContent>
+                    </GridWrapperMain>
+                </>
+            )
+        );
+    }, [ instance, navigationSidebar, navigationHeader, navigationStructure, content ] );
 
     useProfiler( "Layout" );
 
     return (
         <GridWrapper ref={ setRef } className={ instance.classNames } direction="row" container>
-            { 
-                instance.layoutModeCurrent === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT ? (
-                    <>
-                        <GridWrapperNavigationSidebar item>{navigationSidebar}</GridWrapperNavigationSidebar>
-                        <GridWrapperNavigationStructure item>{navigationStructure}</GridWrapperNavigationStructure>
-                        <GridWrapperMain container direction="column">
-                            <GridWrapperNavigationHeader structure item>{navigationHeader}</GridWrapperNavigationHeader>
-                            <GridWrapperContent structure header item>{content}</GridWrapperContent>
-                        </GridWrapperMain>
-                    </>
-                ) :
-                instance.layoutModeCurrent === LayoutModes.SIDEBAR_CONTENT ? (
-                    <>
-                        <GridWrapperNavigationSidebar item>{ navigationSidebar }</GridWrapperNavigationSidebar>
-                        <GridWrapperMain direction="column" container>
-                            <GridWrapperContent item>{ content }</GridWrapperContent>
-                        </GridWrapperMain>
-                    </>
-                ) : ( 
-                    <>
-                        <GridWrapperNavigationSidebar item>{ navigationSidebar }</GridWrapperNavigationSidebar>
-                        <GridWrapperMain direction="column" container>
-                            <GridWrapperNavigationHeader item>{ navigationHeader }</GridWrapperNavigationHeader>
-                            <GridWrapperContent header item>{ content }</GridWrapperContent>
-                        </GridWrapperMain>
-                    </>
-                )
-            }
+            { getLayoutModeView() }
         </GridWrapper>
     );
 

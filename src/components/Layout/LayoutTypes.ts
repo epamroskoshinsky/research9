@@ -10,6 +10,7 @@ export interface LayoutInstance {
 }
 
 export interface LayoutProps {
+    layoutMode?: LayoutModes;
     navigationSidebar?: ReactElement;
     navigationStructure?: ReactElement;
     navigationHeader?: ReactElement;
@@ -29,12 +30,7 @@ export const isLayoutMode = (value: unknown): value is LayoutModes => {
 }
 
 export interface LayoutContextInterface {
-    layoutMode: LayoutModes;
-    setLayoutMode( mode:LayoutModes, compatibility?:boolean ):void;
+    layoutMode: LayoutModes|undefined;
+    setLayoutMode( mode:LayoutModes ):void;
     toggleStructure(): void;
-}
-
-export interface LayoutSetProps {
-    layoutMode: LayoutModes;
-    layoutCompatibility?: boolean;
 }
