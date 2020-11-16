@@ -21,11 +21,9 @@ import { PageAccessDenied } from "../Pages/PageAccessDenied";
 import { useProfiler } from "../../utils/useProfiler";
 
 function NavigationSidebar () {
-    const { toggleStructure } = useLayout();
     useProfiler( "NavigationSidebar" );
     return (
         <div className="navigationSidebar" >
-            <button onClick={ toggleStructure } >S</button>
             <ul>
                 <li><Link to="/a" >UnitA</Link></li>
                 <li><Link to="/b" >UnitB</Link></li>
@@ -36,9 +34,8 @@ function NavigationSidebar () {
 }
 
 function NavigationStructure () {
-    const { toggleStructure } = useLayout();
     useProfiler( "NavigationStructure" );
-    return <div className="navigationStructure" onClick={ toggleStructure }></div>;
+    return <div className="navigationStructure" ></div>;
 }
 
 function NavigationHeader () {
@@ -91,17 +88,17 @@ function RoutersUnit () {
                 <Route path="/c" exact >
                     <LayoutModeSet layoutMode={ LayoutModes.SIDEBAR_HEADER_CONTENT } layoutCompatibility >
                         <UnitC />
-                   </LayoutModeSet>
+                    </LayoutModeSet>
                 </Route>
                 <Route path="/403" exact >
                     <LayoutModeSet layoutMode={ LayoutModes.SIDEBAR_CONTENT } >
                         <PageAccessDenied />
-                   </LayoutModeSet>
+                    </LayoutModeSet>
                 </Route>
                 <Route path="*" >
                     <LayoutModeSet layoutMode={ LayoutModes.SIDEBAR_CONTENT } >
                         <PageNotFound />
-                   </LayoutModeSet>
+                    </LayoutModeSet>
                 </Route>
             </Switch>
         </div>
