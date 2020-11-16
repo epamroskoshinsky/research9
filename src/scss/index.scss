@@ -1,0 +1,25 @@
+@import "./env.scss";
+
+body {
+    background-color: $colorBackground;
+    color: $color;
+    font-family: $fontFamily;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    > div {
+        width: 100vw;   
+        height: 100vh;
+    }
+
+}
+
+a {
+    color: $colorAccent1;
+}
+
+code {
+    font-family: $fontFamilyCode;
+}
