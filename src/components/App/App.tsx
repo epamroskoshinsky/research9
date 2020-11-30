@@ -1,10 +1,9 @@
-import "./index.scss";
 import React, { memo } from "react";
 import {
     Layout,
     useLayout,
     LayoutModes
-} from "../Layout";
+} from "@app/modules/layout";
 import {
     BrowserRouter as Router,
     Switch,
@@ -17,6 +16,7 @@ import { UnitC } from "../Units/UnitC";
 import { PageNotFound } from "../Pages/PageNotFound";
 import { PageAccessDenied } from "../Pages/PageAccessDenied";
 import { useProfiler } from "../../utils/useProfiler";
+import "./index.scss";
 
 const NavigationSidebar = memo( function NavigationSidebar () {
     useProfiler( "NavigationSidebar" );
@@ -32,8 +32,9 @@ const NavigationSidebar = memo( function NavigationSidebar () {
 } );
 
 const NavigationStructure = memo( function NavigationStructure () {
+    const { toggleStructure } = useLayout();
     useProfiler( "NavigationStructure" );
-    return <div className="navigationStructure" ></div>;
+    return <div className="navigationStructure" onClick={ toggleStructure } ></div>;
 } );
 
 const NavigationHeader = memo( function NavigationHeader () {
@@ -69,6 +70,7 @@ function NavigationHeader2 () {
 }
 
 export function App () {
+
     useProfiler( "App" );
 
     return (
@@ -77,6 +79,7 @@ export function App () {
                 <Switch>
                     <Route path="/a" exact >
                         <Layout
+                            layoutMode={ LayoutModes.SIDEBAR_HEADER_CONTENT }
                             content={ <UnitA /> }
                             navigationHeader={ <NavigationHeader /> }
                             navigationSidebar={ <NavigationSidebar /> }
@@ -85,6 +88,7 @@ export function App () {
                     </Route>
                     <Route path="/b" exact >
                         <Layout
+                            layoutMode={ LayoutModes.SIDEBAR_HEADER_CONTENT }
                             content={ <UnitB /> }
                             navigationHeader={ <NavigationHeader2 /> }
                             navigationSidebar={ <NavigationSidebar /> }
@@ -93,6 +97,7 @@ export function App () {
                     </Route>
                     <Route path="/c" exact >
                         <Layout
+                            layoutMode={ LayoutModes.SIDEBAR_HEADER_CONTENT }
                             content={ <UnitC /> }
                             navigationHeader={ <NavigationHeader /> }
                             navigationSidebar={ <NavigationSidebar /> }

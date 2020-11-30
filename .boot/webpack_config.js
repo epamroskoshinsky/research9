@@ -313,6 +313,7 @@ module.exports = function ( webpackEnv ) {
             alias : {
                 "@src": path.resolve( paths.appSrc ),
                 "@components": path.resolve( `${ paths.appSrc }/components` ),
+                "@app": path.resolve( `${ paths.appSrc }/components` ),
                 "@utils": path.resolve( `${ paths.appSrc }/utils` ),
                 "@services": path.resolve( `${ paths.appSrc }/services` ),    
                 // Support React Native Web

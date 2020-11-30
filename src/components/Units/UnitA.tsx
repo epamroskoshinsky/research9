@@ -1,5 +1,5 @@
 import React from "react";
-import { useProfiler } from "../../utils/useProfiler";
+import { useProfiler } from "@utils/useProfiler";
 
 export function UnitA() {
     useProfiler( "UnitA" );

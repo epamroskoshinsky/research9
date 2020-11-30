@@ -1,7 +1,7 @@
 import "./scss/index.scss";
 import React from "react";
 import ReactDOM from "react-dom";
-import { LayoutProvider } from "./components/Layout";
+import { LayoutProvider } from "@app/modules/layout";
 import { App } from "./components/App";
 
 ReactDOM.render( (

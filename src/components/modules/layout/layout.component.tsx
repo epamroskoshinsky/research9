@@ -1,43 +1,31 @@
-import React, { 
-    useCallback,
-    useEffect,
-    useRef,
-    useState
-} from "react";
-import { useLayout } from "./LayoutProvider";
-import { 
+import { useLayout } from '@app/modules/layout';
+import {
+    NAVIGATION_STRUCTURE_ANIMATION_DURATION,
+} from '@app/modules/layout/layout.constants';
+import {
     GridWrapper,
     GridWrapperContent,
     GridWrapperMain,
+    GridWrapperNavigationHeader,
     GridWrapperNavigationSidebar,
     GridWrapperNavigationStructure,
-    GridWrapperNavigationHeader
-} from "./LayoutStyled";
+} from '@app/modules/layout/layout.styles';
 import {
-    NAVIGATION_STRUCTURE_ANIMATION_DURATION
-} from "./LayoutConstants";
-import { isLayoutMode, LayoutInstance, LayoutModes, LayoutProps } from "./LayoutTypes";
-import { useProfiler } from "../../utils/useProfiler";
-import { LAYOUT_MODE_LOCALSTORAGE_KEY } from "./LayoutConstants";
+    isLayoutMode,
+    LayoutModes,
+    LayoutProps,
+    LayoutInstance,
+} from '@app/modules/layout/layout.types';
+import { layoutModeLocalStorage } from '@app/modules/layout/layout.helpers';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useProfiler } from "@utils/useProfiler";
 
-const layoutModeLocalStorage = function ( layoutMode?:LayoutModes ) {
-    const layoutModeLocalStorage_ = window.localStorage.getItem( LAYOUT_MODE_LOCALSTORAGE_KEY );
-    if ( 
-        layoutMode &&
-        [
-            LayoutModes.SIDEBAR_HEADER_CONTENT,
-            LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT
-        ].includes( layoutMode )
-    ) {
-        window.localStorage.setItem( LAYOUT_MODE_LOCALSTORAGE_KEY, layoutMode );
-        return layoutMode;
-    }
-    return layoutModeLocalStorage_;
-}
-
+const initialLayoutInstance:LayoutInstance = {
+    classNames: "",
+};
 
 export function Layout ( {
-    layoutMode: layoutMode_,
+    layoutMode: layoutModeProp,
     navigationSidebar,
     navigationHeader,
     navigationStructure,
@@ -46,9 +34,7 @@ export function Layout ( {
 
     const [ , _render ] = useState( 0 );
     const { layoutMode, setLayoutMode } = useLayout();
-    const instance = useRef<LayoutInstance>( {
-        classNames: "",
-    } ).current;
+    const instance = useRef<LayoutInstance>( initialLayoutInstance ).current;
     const render = useCallback( () => _render( _ => ++_ ), []);
 
     const setRef = useCallback( ( element ) => {
@@ -95,9 +81,7 @@ export function Layout ( {
                         render();
                     }
                 } else {
-                    if ( instance.layoutModeRequest !== layoutModeNew ) {
-                        instance.layoutModeDeferred = layoutModeNew;
-                    }
+                    instance.layoutModeDeferred = layoutModeNew;
                 }
             }
         };
@@ -105,7 +89,11 @@ export function Layout ( {
     }, [] );
 
     useEffect ( () => {
-        if ( instance.layoutModeDeferred && instance.changeLayoutMode ) {
+        if (
+            instance.layoutModeDeferred &&
+            instance.changeLayoutMode &&
+            instance.classNames.includes( "animation" ) === false
+        ) {
             instance.changeLayoutMode( instance.layoutModeDeferred );
             delete instance.layoutModeDeferred;
         }
@@ -115,19 +103,31 @@ export function Layout ( {
         instance.changeLayoutMode &&
             isLayoutMode( layoutMode ) &&
             instance.changeLayoutMode( layoutMode );
-    }, [ layoutMode, instance ] );
+    }, [
+        instance,
+        layoutMode,
+    ] );
 
     useEffect ( () => {
-        let layoutMode__;
-        if ( !layoutMode ) {
-            layoutMode__ = layoutMode_ ||
-                layoutModeLocalStorage() ||
+        let layoutModeCalculated;
+        const layoutModeLocalStorageFrom = layoutModeLocalStorage();
+        if (
+            [
+                LayoutModes.SIDEBAR_HEADER_CONTENT,
+                LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT
+            ].includes(layoutModeProp)    
+        ) {
+            layoutModeCalculated = layoutModeLocalStorageFrom ||
+                layoutModeProp ||
                 LayoutModes.SIDEBAR_HEADER_CONTENT; 
-        } else if ( !layoutMode_ ) {
-            layoutMode__ = layoutModeLocalStorage() ||
+        } else {
+            layoutModeCalculated = layoutModeProp ||
+                layoutModeLocalStorageFrom ||
                 LayoutModes.SIDEBAR_HEADER_CONTENT; 
         }
-        isLayoutMode( layoutMode__ ) && setLayoutMode( layoutMode__ );
+        if ( !layoutMode || layoutMode !== layoutModeProp ) {
+            isLayoutMode( layoutModeCalculated ) && setLayoutMode( layoutModeCalculated );
+        }
     } );
 
     useEffect( () => {
@@ -166,7 +166,13 @@ export function Layout ( {
                 </>
             )
         );
-    }, [ instance, navigationSidebar, navigationHeader, navigationStructure, content ] );
+    }, [
+        content,
+        instance,
+        navigationHeader,
+        navigationSidebar,
+        navigationStructure,
+    ] );
 
     useProfiler( "Layout" );
 

@@ -16,6 +16,7 @@
         "moduleResolution": "node",
         "paths": {
             "@src/*": [ "src/*" ],
+            "@app/*": [ "src/components/*" ],
             "@components/*": [ "src/components/*" ],
             "@utils/*": [ "src/utils/*" ],
             "@services/*": [ "src/services/*" ],
