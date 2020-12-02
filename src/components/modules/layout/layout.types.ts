@@ -1,14 +1,5 @@
 import { ReactElement } from 'react';
 
-export interface LayoutInstance {
-    element?: HTMLElement;
-    classNames: string;
-    layoutModeCurrent?: LayoutModes;
-    layoutModeDeferred?: LayoutModes;
-    layoutModeRequest?: LayoutModes;
-    changeLayoutMode?: (_:LayoutModes)=>void;
-}
-
 export interface AnimationInterface {
     duration?: number;
     onEnd?(_?:any): void;
@@ -24,9 +15,9 @@ export interface LayoutProps extends AnimationInterface {
 }
 
 export enum LayoutModes {
-    SIDEBAR_HEADER_CONTENT = 'sidebar_header_content',
-    SIDEBAR_STRUCTURE_HEADER_CONTENT = 'sidebar_structure_header_content',
-    SIDEBAR_CONTENT = 'sidebar_content',
+    SIDEBAR_HEADER_CONTENT = 'SIDEBAR_HEADER_CONTENT',
+    SIDEBAR_STRUCTURE_HEADER_CONTENT = 'SIDEBAR_STRUCTURE_HEADER_CONTENT',
+    SIDEBAR_CONTENT = 'SIDEBAR_CONTENT',
 }
 
 export const isLayoutMode = (value: unknown): value is LayoutModes => {

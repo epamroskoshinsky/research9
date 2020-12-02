@@ -4,45 +4,8 @@ import {
     NAVIGATION_STRUCTURE_ANIMATION_DURATION,
     NAVIGATION_STRUCTURE_WIDTH,
 } from '@app/modules/layout/layout.constants';
-// import { Grid } from '@perf/ui-components';
 import Grid from "@material-ui/core/Grid";
-import styled, { keyframes } from 'styled-components';
-
-const keyframesStructureIn = keyframes`
-    0% {
-        width: 0;
-    }
-    100% {
-        width: ${NAVIGATION_STRUCTURE_WIDTH}px;
-    }
-`;
-
-const keyframesStructureInHeaderContent = keyframes`
-    0% {
-        padding-left: ${NAVIGATION_SIDEBAR_WIDTH}px;
-    }
-    100% {
-        padding-left: ${NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH}px;
-    }
-`;
-
-const keyframesStructureOut = keyframes`
-    0% {
-        width: ${NAVIGATION_STRUCTURE_WIDTH}px;
-    }
-    100% {
-        width: 0;
-    }
-`;
-
-const keyframesStructureOutHeaderContnent = keyframes`
-    0% {
-        padding-left: ${NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH}px;
-    }
-    100% {
-        padding-left: ${NAVIGATION_SIDEBAR_WIDTH}px;
-    }
-`;
+import styled from 'styled-components';
 
 export const GridWrapperNavigationSidebar = styled(Grid)`
     width: ${NAVIGATION_SIDEBAR_WIDTH}px;
@@ -90,33 +53,57 @@ export const GridWrapper = styled(Grid)`
     height: 100%;
     flex-wrap: nowrap;
 
-    &.animation_structure_in {
+    &.structure-in-appear {
         ${GridWrapperNavigationStructure} {
-            animation-name: ${keyframesStructureIn};
-            animation-duration: ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;
+            width: 0;
         }
         ${GridWrapperNavigationHeader} {
-            animation-name: ${keyframesStructureInHeaderContent};
-            animation-duration: ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;
+            padding-left: ${NAVIGATION_SIDEBAR_WIDTH}px;
         }
         ${GridWrapperContent} {
-            animation-name: ${keyframesStructureInHeaderContent};
-            animation-duration: ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;
+            padding-left: ${NAVIGATION_SIDEBAR_WIDTH}px;            
         }
     }
 
-    &.animation_structure_out {
+    &.structure-in-appear-active {
         ${GridWrapperNavigationStructure} {
-            animation-name: ${keyframesStructureOut};
-            animation-duration: ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;
+            width: ${NAVIGATION_STRUCTURE_WIDTH}px;
+            transition: width ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;
         }
         ${GridWrapperNavigationHeader} {
-            animation-name: ${keyframesStructureOutHeaderContnent};
-            animation-duration: ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;
+            padding-left: ${NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH}px;
+            transition: padding-left ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;
         }
         ${GridWrapperContent} {
-            animation-name: ${keyframesStructureOutHeaderContnent};
-            animation-duration: ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;
+            padding-left: ${NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH}px;
+            transition: padding-left ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;            
+        }
+    }
+
+    &.structure-out-appear {
+        ${GridWrapperNavigationStructure} {
+            width: ${NAVIGATION_STRUCTURE_WIDTH}px;
+        }
+        ${GridWrapperNavigationHeader} {
+            padding-left: ${NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH}px;
+        }
+        ${GridWrapperContent} {
+            padding-left: ${NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH}px;
+        }
+    }
+
+    &.structure-out-appear-active {
+        ${GridWrapperNavigationStructure} {
+            width: 0px;
+            transition: width ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;
+        }
+        ${GridWrapperNavigationHeader} {
+            padding-left: ${NAVIGATION_SIDEBAR_WIDTH}px;
+            transition: padding-left ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;
+        }
+        ${GridWrapperContent} {
+            padding-left: ${NAVIGATION_SIDEBAR_WIDTH}px;
+            transition: padding-left ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;
         }
     }
 `;

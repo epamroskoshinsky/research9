@@ -11,164 +11,179 @@ import {
     GridWrapperNavigationStructure,
 } from '@app/modules/layout/layout.styles';
 import {
-    isLayoutMode,
     LayoutModes,
     LayoutProps,
-    LayoutInstance,
+    isLayoutMode,
 } from '@app/modules/layout/layout.types';
 import { layoutModeLocalStorage } from '@app/modules/layout/layout.helpers';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+    useCallback,
+    useEffect,
+    useState
+} from 'react';
 import { useProfiler } from "@utils/useProfiler";
-
-const initialLayoutInstance:LayoutInstance = {
-    classNames: "",
-};
+import { CSSTransition } from "react-transition-group";
 
 export function Layout ( {
-    layoutMode: layoutModeProp,
-    navigationSidebar,
-    navigationHeader,
-    navigationStructure,
     content,
+    layoutMode: layoutModeProp,
+    navigationHeader,
+    navigationSidebar,
+    navigationStructure,
 }:LayoutProps ) {
 
-    const [ , _render ] = useState( 0 );
-    const { layoutMode, setLayoutMode } = useLayout();
-    const instance = useRef<LayoutInstance>( initialLayoutInstance ).current;
-    const render = useCallback( () => _render( _ => ++_ ), []);
-
-    const setRef = useCallback( ( element ) => {
-
-        if ( instance.element  ) {
-            return;
-        }
-
-        instance.element = element;
-
-        instance.changeLayoutMode = ( layoutModeNew:LayoutModes ) => {
-            if ( layoutModeNew !== instance.layoutModeRequest ) {
-                if ( instance.classNames.includes( "animation" ) === false ) {
-                    instance.layoutModeRequest = layoutModeNew;
-                    if ( 
-                        instance.layoutModeRequest === LayoutModes.SIDEBAR_HEADER_CONTENT &&
-                        instance.layoutModeCurrent === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT 
-                    ) {
-                        setTimeout( () => {
-                            if ( instance.layoutModeCurrent ) {
-                                instance.layoutModeCurrent = layoutModeNew;
-                                instance.classNames = "";
-                                render();
-                            }
-                        }, NAVIGATION_STRUCTURE_ANIMATION_DURATION );
-                        instance.classNames = "animation_structure_out";
-                        layoutModeLocalStorage( layoutModeNew );
-                        render();
-                    } else if (
-                        instance.layoutModeRequest === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT &&
-                        instance.layoutModeCurrent === LayoutModes.SIDEBAR_HEADER_CONTENT
-                    ) {
-                        instance.layoutModeCurrent = layoutModeNew;
-                        layoutModeLocalStorage( layoutModeNew );
-                        setTimeout( () => {
-                            instance.classNames = "";
-                            render();
-                        }, NAVIGATION_STRUCTURE_ANIMATION_DURATION );
-                        instance.classNames = "animation_structure_in";
-                        render();
-                    } else {
-                        layoutModeLocalStorage( layoutModeNew );
-                        instance.layoutModeCurrent = layoutModeNew;
-                        render();
-                    }
-                } else {
-                    instance.layoutModeDeferred = layoutModeNew;
-                }
-            }
-        };
-
-    }, [] );
-
-    useEffect ( () => {
-        if (
-            instance.layoutModeDeferred &&
-            instance.changeLayoutMode &&
-            instance.classNames.includes( "animation" ) === false
-        ) {
-            instance.changeLayoutMode( instance.layoutModeDeferred );
-            delete instance.layoutModeDeferred;
-        }
-    } );
+    const [ blockChange, setBlockChange ] = useState<boolean>(false);
+    const [ layoutModeApplied, setLayoutModeApplied ] = useState<LayoutModes>();
+    const [ layoutModePropBefore, setLayoutModePropBefore ] = useState<LayoutModes>();
+    const [ layoutTransition, setLayoutTransition ] = useState<boolean>();
+    const { layoutMode, layoutModePrev, setLayoutMode } = useLayout();
 
     useEffect( () => {
-        instance.changeLayoutMode &&
-            isLayoutMode( layoutMode ) &&
-            instance.changeLayoutMode( layoutMode );
-    }, [
-        instance,
-        layoutMode,
-    ] );
-
-    useEffect ( () => {
-        let layoutModeCalculated;
-        const layoutModeLocalStorageFrom = layoutModeLocalStorage();
+        if ( blockChange ) {
+            return;
+        }
+        if ( layoutMode && layoutMode !== layoutModeApplied ) {
+            if ( layoutMode !== LayoutModes.SIDEBAR_CONTENT ) {
+                layoutModeLocalStorage( layoutMode );
+            }
+            setLayoutModeApplied( layoutMode );
+            if (
+                layoutModePrev === LayoutModes.SIDEBAR_HEADER_CONTENT &&
+                layoutMode === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT
+            ) {
+                setLayoutTransition(true);
+            }
+            if (
+                layoutModePrev === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT &&
+                layoutMode === LayoutModes.SIDEBAR_HEADER_CONTENT
+            ) {
+                setLayoutTransition(false);
+            }
+            return;
+        }
         if (
-            [
-                LayoutModes.SIDEBAR_HEADER_CONTENT,
-                LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT
-            ].includes(layoutModeProp)    
+            layoutModeProp !== layoutModeApplied &&
+            layoutModeProp !== layoutModePropBefore
         ) {
-            layoutModeCalculated = layoutModeLocalStorageFrom ||
-                layoutModeProp ||
-                LayoutModes.SIDEBAR_HEADER_CONTENT; 
-        } else {
-            layoutModeCalculated = layoutModeProp ||
-                layoutModeLocalStorageFrom ||
-                LayoutModes.SIDEBAR_HEADER_CONTENT; 
+            if (
+                layoutModeProp !== LayoutModes.SIDEBAR_CONTENT &&
+                (
+                    !layoutModePropBefore ||
+                    [
+                        LayoutModes.SIDEBAR_HEADER_CONTENT,
+                        LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT,
+                    ].includes( layoutModePropBefore ) === false    
+                )
+            ) {
+                const layoutModeLocalStorageFrom = layoutModeLocalStorage();
+                if ( isLayoutMode( layoutModeLocalStorageFrom ) ) {
+                    setLayoutModePropBefore( layoutModeProp );
+                    setLayoutMode( layoutModeLocalStorageFrom );
+                    return;
+                }
+            }
+            setLayoutMode( layoutModeProp );
+            setLayoutModePropBefore( layoutModeProp );
         }
-        if ( !layoutMode || layoutMode !== layoutModeProp ) {
-            isLayoutMode( layoutModeCalculated ) && setLayoutMode( layoutModeCalculated );
-        }
-    } );
+    }, [
+        blockChange,
+        layoutMode,
+        layoutModeApplied,
+        layoutModeProp,
+        layoutModePropBefore,
+        layoutTransition,
+    ] );
 
     useEffect( () => {
         window.scroll( 0, 0 );
     }, [ content ] );
 
-    const getLayoutModeView = useCallback( () => {
-        if ( !instance.layoutModeCurrent ) {
+    const getView = useCallback( () => {
+        if ( !layoutModeApplied ) {
             return null;
         }
-        return  ( 
-            instance.layoutModeCurrent === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT ? (
-                <>
+        
+        if ( layoutModeApplied === LayoutModes.SIDEBAR_CONTENT ) {
+            return (
+                <GridWrapper direction="row" container>
+                    <GridWrapperNavigationSidebar item>{ navigationSidebar }</GridWrapperNavigationSidebar>
+                    <GridWrapperMain direction="column" container>
+                        <GridWrapperContent item>{ content }</GridWrapperContent>
+                    </GridWrapperMain>
+                </GridWrapper>
+            );
+        } else if (
+            layoutTransition === undefined &&
+            layoutModeApplied === LayoutModes.SIDEBAR_HEADER_CONTENT
+        ) {
+            return (
+                <GridWrapper direction="row" container>
+                    <GridWrapperNavigationSidebar item>{ navigationSidebar }</GridWrapperNavigationSidebar>
+                    <GridWrapperMain direction="column" container>
+                        <GridWrapperNavigationHeader item>{ navigationHeader }</GridWrapperNavigationHeader>
+                        <GridWrapperContent header item>{ content }</GridWrapperContent>
+                    </GridWrapperMain>
+                </GridWrapper>
+            );
+        } else if (
+            layoutTransition !== undefined ||
+            layoutModeApplied === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT
+        ) {
+            const view = (
+                <GridWrapper direction="row" container>
                     <GridWrapperNavigationSidebar item>{navigationSidebar}</GridWrapperNavigationSidebar>
                     <GridWrapperNavigationStructure item>{navigationStructure}</GridWrapperNavigationStructure>
                     <GridWrapperMain container direction="column">
                         <GridWrapperNavigationHeader structure item>{navigationHeader}</GridWrapperNavigationHeader>
                         <GridWrapperContent structure header item>{content}</GridWrapperContent>
                     </GridWrapperMain>
-                </>
-            ) :
-            instance.layoutModeCurrent === LayoutModes.SIDEBAR_CONTENT ? (
-                <>
-                    <GridWrapperNavigationSidebar item>{ navigationSidebar }</GridWrapperNavigationSidebar>
-                    <GridWrapperMain direction="column" container>
-                        <GridWrapperContent item>{ content }</GridWrapperContent>
-                    </GridWrapperMain>
-                </>
-            ) : ( 
-                <>
-                    <GridWrapperNavigationSidebar item>{ navigationSidebar }</GridWrapperNavigationSidebar>
-                    <GridWrapperMain direction="column" container>
-                        <GridWrapperNavigationHeader item>{ navigationHeader }</GridWrapperNavigationHeader>
-                        <GridWrapperContent header item>{ content }</GridWrapperContent>
-                    </GridWrapperMain>
-                </>
-            )
-        );
+                </GridWrapper>
+            );
+            if ( layoutTransition === undefined ) {
+                return view;
+            } else {
+                if ( layoutTransition ) {
+                    return (
+                        <CSSTransition
+                            in={ true }
+                            appear={ true }
+                            timeout={ NAVIGATION_STRUCTURE_ANIMATION_DURATION }
+                            onEnter={ () => setBlockChange(true) }
+                            onEntered={ () => {
+                                setBlockChange(false);
+                                setLayoutTransition(undefined);
+                            } }
+                            classNames="structure-in"
+                        >
+                            { view }
+                        </CSSTransition>
+                    );
+                } else {
+                    return (
+                        <CSSTransition
+                            in={ true }
+                            appear={ true }
+                            timeout={ NAVIGATION_STRUCTURE_ANIMATION_DURATION }
+                            onEnter={ () => setBlockChange(true) }
+                            onEntered={ () => {
+                                setBlockChange(false);
+                                setLayoutTransition(undefined);
+                            } }
+                            classNames="structure-out"
+                        >
+                            { view }
+                        </CSSTransition>
+                    );
+                }
+            }
+        }
+
+        return null;
+
     }, [
         content,
-        instance,
+        layoutModeApplied,
+        layoutTransition,
         navigationHeader,
         navigationSidebar,
         navigationStructure,
@@ -176,10 +191,6 @@ export function Layout ( {
 
     useProfiler( "Layout" );
 
-    return (
-        <GridWrapper ref={ setRef } className={ instance.classNames } direction="row" container>
-            { getLayoutModeView() }
-        </GridWrapper>
-    );
+    return getView();
 
 }
