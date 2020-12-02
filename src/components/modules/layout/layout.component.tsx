@@ -13,85 +13,40 @@ import {
 import {
     LayoutModes,
     LayoutProps,
-    isLayoutMode,
 } from '@app/modules/layout/layout.types';
-import { layoutModeLocalStorage } from '@app/modules/layout/layout.helpers';
 import React, {
     useCallback,
     useEffect,
+    useRef,
     useState
 } from 'react';
 import { useProfiler } from "@utils/useProfiler";
 import { CSSTransition } from "react-transition-group";
 
-export function Layout ( {
+export const Layout = ( {
     content,
     layoutMode: layoutModeProp,
     navigationHeader,
     navigationSidebar,
     navigationStructure,
-}:LayoutProps ) {
+}:LayoutProps ) => {
 
-    const [ blockChange, setBlockChange ] = useState<boolean>(false);
-    const [ layoutModeApplied, setLayoutModeApplied ] = useState<LayoutModes>();
-    const [ layoutModePropBefore, setLayoutModePropBefore ] = useState<LayoutModes>();
-    const [ layoutTransition, setLayoutTransition ] = useState<boolean>();
-    const { layoutMode, layoutModePrev, setLayoutMode } = useLayout();
+    const [ applied, setApplied ] = useState( false );
+    const { layoutMode, setLayoutMode } = useLayout();
 
     useEffect( () => {
-        if ( blockChange ) {
-            return;
-        }
-        if ( layoutMode && layoutMode !== layoutModeApplied ) {
-            if ( layoutMode !== LayoutModes.SIDEBAR_CONTENT ) {
-                layoutModeLocalStorage( layoutMode );
-            }
-            setLayoutModeApplied( layoutMode );
-            if (
-                layoutModePrev === LayoutModes.SIDEBAR_HEADER_CONTENT &&
-                layoutMode === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT
-            ) {
-                setLayoutTransition(true);
-            }
-            if (
-                layoutModePrev === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT &&
-                layoutMode === LayoutModes.SIDEBAR_HEADER_CONTENT
-            ) {
-                setLayoutTransition(false);
-            }
-            return;
-        }
-        if (
-            layoutModeProp !== layoutModeApplied &&
-            layoutModeProp !== layoutModePropBefore
-        ) {
-            if (
-                layoutModeProp !== LayoutModes.SIDEBAR_CONTENT &&
-                (
-                    !layoutModePropBefore ||
-                    [
-                        LayoutModes.SIDEBAR_HEADER_CONTENT,
-                        LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT,
-                    ].includes( layoutModePropBefore ) === false    
-                )
-            ) {
-                const layoutModeLocalStorageFrom = layoutModeLocalStorage();
-                if ( isLayoutMode( layoutModeLocalStorageFrom ) ) {
-                    setLayoutModePropBefore( layoutModeProp );
-                    setLayoutMode( layoutModeLocalStorageFrom );
-                    return;
-                }
-            }
+        if ( !layoutMode && layoutModeProp ) {
             setLayoutMode( layoutModeProp );
-            setLayoutModePropBefore( layoutModeProp );
+            setApplied( true );
+        }
+        if ( !applied && layoutModeProp ) {
+            setLayoutMode( layoutModeProp );
+            setApplied( true );
         }
     }, [
-        blockChange,
+        applied,
         layoutMode,
-        layoutModeApplied,
         layoutModeProp,
-        layoutModePropBefore,
-        layoutTransition,
     ] );
 
     useEffect( () => {
@@ -99,11 +54,10 @@ export function Layout ( {
     }, [ content ] );
 
     const getView = useCallback( () => {
-        if ( !layoutModeApplied ) {
+        if ( !layoutMode ) {
             return null;
-        }
-        
-        if ( layoutModeApplied === LayoutModes.SIDEBAR_CONTENT ) {
+        }        
+        if ( layoutMode === LayoutModes.SIDEBAR_CONTENT ) {
             return (
                 <GridWrapper direction="row" container>
                     <GridWrapperNavigationSidebar item>{ navigationSidebar }</GridWrapperNavigationSidebar>
@@ -112,10 +66,7 @@ export function Layout ( {
                     </GridWrapperMain>
                 </GridWrapper>
             );
-        } else if (
-            layoutTransition === undefined &&
-            layoutModeApplied === LayoutModes.SIDEBAR_HEADER_CONTENT
-        ) {
+        } else if ( layoutMode === LayoutModes.SIDEBAR_HEADER_CONTENT ) {
             return (
                 <GridWrapper direction="row" container>
                     <GridWrapperNavigationSidebar item>{ navigationSidebar }</GridWrapperNavigationSidebar>
@@ -126,8 +77,9 @@ export function Layout ( {
                 </GridWrapper>
             );
         } else if (
-            layoutTransition !== undefined ||
-            layoutModeApplied === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT
+            layoutMode === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT ||
+            layoutMode === LayoutModes.SIDEBAR_STRUCTURE_IN_HEADER_CONTENT ||
+            layoutMode === LayoutModes.SIDEBAR_STRUCTURE_OUT_HEADER_CONTENT
         ) {
             const view = (
                 <GridWrapper direction="row" container>
@@ -139,51 +91,39 @@ export function Layout ( {
                     </GridWrapperMain>
                 </GridWrapper>
             );
-            if ( layoutTransition === undefined ) {
+            if ( layoutMode === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT ) {
                 return view;
-            } else {
-                if ( layoutTransition ) {
-                    return (
-                        <CSSTransition
-                            in={ true }
-                            appear={ true }
-                            timeout={ NAVIGATION_STRUCTURE_ANIMATION_DURATION }
-                            onEnter={ () => setBlockChange(true) }
-                            onEntered={ () => {
-                                setBlockChange(false);
-                                setLayoutTransition(undefined);
-                            } }
-                            classNames="structure-in"
-                        >
-                            { view }
-                        </CSSTransition>
-                    );
-                } else {
-                    return (
-                        <CSSTransition
-                            in={ true }
-                            appear={ true }
-                            timeout={ NAVIGATION_STRUCTURE_ANIMATION_DURATION }
-                            onEnter={ () => setBlockChange(true) }
-                            onEntered={ () => {
-                                setBlockChange(false);
-                                setLayoutTransition(undefined);
-                            } }
-                            classNames="structure-out"
-                        >
-                            { view }
-                        </CSSTransition>
-                    );
-                }
+            } else if ( layoutMode === LayoutModes.SIDEBAR_STRUCTURE_IN_HEADER_CONTENT ) {
+                return (
+                    <CSSTransition
+                        in={ true }
+                        appear={ true }
+                        timeout={ NAVIGATION_STRUCTURE_ANIMATION_DURATION }
+                        onEntered={ () => setLayoutMode(LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT) }
+                        classNames="structure-in"
+                    >
+                        { view }
+                    </CSSTransition>
+                );
+            } else if ( layoutMode === LayoutModes.SIDEBAR_STRUCTURE_OUT_HEADER_CONTENT ) {
+                return (
+                    <CSSTransition
+                        in={ true }
+                        appear={ true }
+                        timeout={ NAVIGATION_STRUCTURE_ANIMATION_DURATION }
+                        onEntered={ () => setLayoutMode(LayoutModes.SIDEBAR_HEADER_CONTENT) }
+                        classNames="structure-out"
+                    >
+                        { view }
+                    </CSSTransition>
+                );
             }
         }
-
         return null;
-
     }, [
+        applied,
         content,
-        layoutModeApplied,
-        layoutTransition,
+        layoutMode,
         navigationHeader,
         navigationSidebar,
         navigationStructure,

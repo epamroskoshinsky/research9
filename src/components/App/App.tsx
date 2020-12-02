@@ -1,73 +1,22 @@
-import React, { memo } from "react";
-import {
-    Layout,
-    useLayout,
-    LayoutModes
-} from "@app/modules/layout";
+import React from "react";
 import {
     BrowserRouter as Router,
     Switch,
     Route,
-    Link,
   } from "react-router-dom";
-import { UnitA } from "../Units/UnitA";
-import { UnitB } from "../Units/UnitB";
-import { UnitC } from "../Units/UnitC";
-import { PageNotFound } from "../Pages/PageNotFound";
-import { PageAccessDenied } from "../Pages/PageAccessDenied";
-import { useProfiler } from "../../utils/useProfiler";
+import { UnitA } from "@app/modules/layout/mock/UnitA";
+import { UnitB } from "@app/modules/layout/mock/UnitB";
+import { UnitC } from "@app/modules/layout/mock/UnitC";
+import { PageNotFound } from "@app/modules/layout/mock/PageNotFound";
+import { PageAccessDenied } from "@app/modules/layout/mock/PageAccessDenied";
+import { LayoutError } from "@app/modules/layout/layout-error/layout-error.component"
+import { LayoutUnit } from "@app/modules/layout/layout-unit/layout-unit.component"
+import { LayoutLanding } from "@app/modules/layout/layout-landing/layout-landing.component"
+import { useProfiler } from "@utils/useProfiler";
 import "./index.scss";
-
-const NavigationSidebar = memo( function NavigationSidebar () {
-    useProfiler( "NavigationSidebar" );
-    return (
-        <div className="navigationSidebar" >
-            <ul>
-                <li><Link to="/a" >UnitA</Link></li>
-                <li><Link to="/b" >UnitB</Link></li>
-                <li><Link to="/c" >UnitC</Link></li>
-            </ul>
-        </div>
-    );
-} );
-
-const NavigationStructure = memo( function NavigationStructure () {
-    const { toggleStructure } = useLayout();
-    useProfiler( "NavigationStructure" );
-    return <div className="navigationStructure" onClick={ toggleStructure } ></div>;
-} );
-
-const NavigationHeader = memo( function NavigationHeader () {
-    const { toggleStructure } = useLayout();
-    useProfiler( "NavigationHeader" );
-    return (
-        <div className="navigationHeader" >
-            <button onClick={ toggleStructure } >S</button>
-            <h1>Header</h1>
-            <ul>
-                <li><Link to="/a" >UnitA</Link></li>
-                <li><Link to="/b" >UnitB</Link></li>
-                <li><Link to="/c" >UnitC</Link></li>
-            </ul>
-        </div>
-    );
-} );
-
-function NavigationHeader2 () {
-    const { toggleStructure } = useLayout();
-    useProfiler( "NavigationHeader2" );
-    return (
-        <div className="navigationHeader" >
-            <button onClick={ toggleStructure } >S</button>
-            <h1>Header 2</h1>
-            <ul>
-                <li><Link to="/a" >UnitA</Link></li>
-                <li><Link to="/b" >UnitB</Link></li>
-                <li><Link to="/c" >UnitC</Link></li>
-            </ul>
-        </div>
-    );
-}
+import { LandingA } from "@app/modules/layout/mock/LandingA";
+import { LandingB } from "@app/modules/layout/mock/LandingB";
+import { LandingC } from "@app/modules/layout/mock/LandingC";
 
 export function App () {
 
@@ -77,46 +26,45 @@ export function App () {
         <Router>
             <div className="content" >
                 <Switch>
-                    <Route path="/a" exact >
-                        <Layout
-                            layoutMode={ LayoutModes.SIDEBAR_HEADER_CONTENT }
-                            content={ <UnitA /> }
-                            navigationHeader={ <NavigationHeader /> }
-                            navigationSidebar={ <NavigationSidebar /> }
-                            navigationStructure={ <NavigationStructure /> }
-                        />
+                    <Route path="/unit-a" exact >
+                        <LayoutUnit>
+                            <UnitA />
+                        </LayoutUnit>
                     </Route>
-                    <Route path="/b" exact >
-                        <Layout
-                            layoutMode={ LayoutModes.SIDEBAR_HEADER_CONTENT }
-                            content={ <UnitB /> }
-                            navigationHeader={ <NavigationHeader2 /> }
-                            navigationSidebar={ <NavigationSidebar /> }
-                            navigationStructure={ <NavigationStructure /> }
-                        />
+                    <Route path="/unit-b" exact >
+                        <LayoutUnit>
+                            <UnitB />
+                        </LayoutUnit>
                     </Route>
-                    <Route path="/c" exact >
-                        <Layout
-                            layoutMode={ LayoutModes.SIDEBAR_HEADER_CONTENT }
-                            content={ <UnitC /> }
-                            navigationHeader={ <NavigationHeader /> }
-                            navigationSidebar={ <NavigationSidebar /> }
-                            navigationStructure={ <NavigationStructure /> }
-                        />
+                    <Route path="/unit-c" exact >
+                        <LayoutUnit>
+                            <UnitC />
+                        </LayoutUnit>
+                    </Route>
+                    <Route path="/landing-a" exact >
+                        <LayoutLanding>
+                            <LandingA />
+                        </LayoutLanding>
+                    </Route>
+                    <Route path="/landing-b" exact >
+                        <LayoutLanding>
+                            <LandingB />
+                        </LayoutLanding>
+                    </Route>
+                    <Route path="/landing-c" exact >
+                        <LayoutLanding>
+                            <LandingC />
+                        </LayoutLanding>
                     </Route>
                     <Route path="/403" exact >
-                        <Layout
-                            layoutMode={ LayoutModes.SIDEBAR_CONTENT }
-                            content={ <PageAccessDenied /> }
-                            navigationSidebar={ <NavigationSidebar /> }
-                        />
+                        <LayoutError>
+                            <PageAccessDenied />
+                        </LayoutError>
                     </Route>
                     <Route path="*" >
-                        <Layout
-                            layoutMode={ LayoutModes.SIDEBAR_CONTENT }
-                            content={ <PageNotFound /> }
-                            navigationSidebar={ <NavigationSidebar /> }
-                        /> 
+                        <LayoutError>
+                            <PageNotFound />
+                        </LayoutError>
                     </Route>
                 </Switch>
             </div>
