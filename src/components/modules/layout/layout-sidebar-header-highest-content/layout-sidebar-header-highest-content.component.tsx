@@ -6,9 +6,20 @@ import { useProfiler } from "@utils/useProfiler";
 
 export const LayoutSidebarHeaderHighestContent = memo( function LayoutLanding ({
     children
-}: { children: ReactElement }) {
+}: { children:ReactElement | [ReactElement, ReactElement, ReactElement] }) {
 
     useProfiler("LayoutSidebarHeaderHighestContent");
+
+    if ( Array.isArray( children ) ) {
+        return (
+            <Layout
+                content={ children[ 2 ] }
+                layoutMode={ LayoutModes.SIDEBAR_HEADER_HIGHEST_CONTENT }
+                navigationHeader={ children[ 1 ] }
+                navigationSidebar={ children[ 0 ] }
+            />
+        );                
+    }
 
     return (
         <Layout

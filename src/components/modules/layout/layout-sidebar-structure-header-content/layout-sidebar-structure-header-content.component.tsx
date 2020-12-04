@@ -7,9 +7,21 @@ import { useProfiler } from "@utils/useProfiler";
 
 export const LayoutSidebarStructureHeaderContent = memo( function LayoutUnit ({
     children
-}: { children: ReactElement }) {
+}: { children:ReactElement | [ReactElement, ReactElement, ReactElement, ReactElement] }) {
 
     useProfiler("LayoutSidebarStructureHeaderContent");
+
+    if ( Array.isArray( children ) ) {
+        return (
+            <Layout
+                content={ children[ 3 ] }
+                layoutMode={ LayoutModes.SIDEBAR_STRUCTURE_COLLAPSED_HEADER_CONTENT }
+                navigationHeader={ children[ 2 ] }
+                navigationSidebar={ children[ 0 ] }
+                navigationStructure={ children[ 1 ] }
+            />
+        );                
+    }
 
     return (
         <Layout

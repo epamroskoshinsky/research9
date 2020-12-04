@@ -13,6 +13,9 @@ import { LayoutSidebarContent } from "@app/modules/layout/layout-sidebar-content
 import { LayoutSidebarStructureHeaderContent } from "@app/modules/layout/layout-sidebar-structure-header-content";
 import { LayoutSidebarHeaderContent } from "@app/modules/layout/layout-sidebar-header-content";
 import { LayoutSidebarHeaderHighestContent } from "@app/modules/layout/layout-sidebar-header-highest-content";
+import { NavigationHeader2 } from "@app/modules/layout/mock/NavigationHeader2";
+import { NavigationSidebar } from "@app/modules/layout/mock/NavigationSidebar";
+import { NavigationStructure } from "@app/modules/layout/mock/NavigationStructure";
 import { useProfiler } from "@utils/useProfiler";
 import "./index.scss";
 import { LandingA } from "@app/modules/layout/mock/LandingA";
@@ -29,6 +32,9 @@ export function App () {
                 <Switch>
                     <Route path="/unit-a" exact >
                         <LayoutSidebarStructureHeaderContent>
+                            <NavigationSidebar />
+                            <NavigationStructure />
+                            <NavigationHeader2 />
                             <UnitA />
                         </LayoutSidebarStructureHeaderContent>
                     </Route>

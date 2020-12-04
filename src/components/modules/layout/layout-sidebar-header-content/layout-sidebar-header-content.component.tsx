@@ -6,9 +6,20 @@ import { useProfiler } from "@utils/useProfiler";
 
 export const LayoutSidebarHeaderContent = memo( function LayoutLanding ({
     children
-}: { children: ReactElement }) {
+}: { children:ReactElement | [ReactElement, ReactElement, ReactElement] }) {
 
     useProfiler("LayoutSidebarHeaderContent");
+
+    if ( Array.isArray( children ) ) {
+        return (
+            <Layout
+                content={ children[ 2 ] }
+                layoutMode={ LayoutModes.SIDEBAR_HEADER_CONTENT }
+                navigationHeader={ children[ 1 ] }
+                navigationSidebar={ children[ 0 ] }
+            />
+        );                
+    } 
 
     return (
         <Layout

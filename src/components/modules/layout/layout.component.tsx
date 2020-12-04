@@ -212,7 +212,6 @@ export const Layout = ( {
     ] );
 
     useProfiler( "Layout" );
-    console.log( "Layout", layoutMode );
 
     return getView();
 
