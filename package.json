@@ -3,7 +3,7 @@
     "description": "",
     "keywords": [],
     "author": "",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "scripts": {
         "start": "node .boot/start.js",
         "build": "node .boot/build.js",

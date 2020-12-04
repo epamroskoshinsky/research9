@@ -13,7 +13,7 @@ export const NavigationHeaderWithoutToggle = memo( function NavigationHeaderWith
                 <li><Link to="/unit-c" >UnitC</Link></li>
                 <li><Link to="/landing-a" >LanA</Link></li>
                 <li><Link to="/landing-b" >LanB</Link></li>
-                <li><Link to="/landing-c" >LanC</Link></li>
+                <li><Link to="/landing-heighest-c" >LanHC</Link></li>
             </ul>
         </div>
     );

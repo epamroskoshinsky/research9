@@ -9,9 +9,10 @@ import { UnitB } from "@app/modules/layout/mock/UnitB";
 import { UnitC } from "@app/modules/layout/mock/UnitC";
 import { PageNotFound } from "@app/modules/layout/mock/PageNotFound";
 import { PageAccessDenied } from "@app/modules/layout/mock/PageAccessDenied";
-import { LayoutError } from "@app/modules/layout/layout-error/layout-error.component"
-import { LayoutUnit } from "@app/modules/layout/layout-unit/layout-unit.component"
-import { LayoutLanding } from "@app/modules/layout/layout-landing/layout-landing.component"
+import { LayoutSidebarContent } from "@app/modules/layout/layout-sidebar-content";
+import { LayoutSidebarStructureHeaderContent } from "@app/modules/layout/layout-sidebar-structure-header-content";
+import { LayoutSidebarHeaderContent } from "@app/modules/layout/layout-sidebar-header-content";
+import { LayoutSidebarHeaderHighestContent } from "@app/modules/layout/layout-sidebar-header-highest-content";
 import { useProfiler } from "@utils/useProfiler";
 import "./index.scss";
 import { LandingA } from "@app/modules/layout/mock/LandingA";
@@ -27,44 +28,44 @@ export function App () {
             <div className="content" >
                 <Switch>
                     <Route path="/unit-a" exact >
-                        <LayoutUnit>
+                        <LayoutSidebarStructureHeaderContent>
                             <UnitA />
-                        </LayoutUnit>
+                        </LayoutSidebarStructureHeaderContent>
                     </Route>
                     <Route path="/unit-b" exact >
-                        <LayoutUnit>
+                        <LayoutSidebarStructureHeaderContent>
                             <UnitB />
-                        </LayoutUnit>
+                        </LayoutSidebarStructureHeaderContent>
                     </Route>
                     <Route path="/unit-c" exact >
-                        <LayoutUnit>
+                        <LayoutSidebarStructureHeaderContent>
                             <UnitC />
-                        </LayoutUnit>
+                        </LayoutSidebarStructureHeaderContent>
                     </Route>
                     <Route path="/landing-a" exact >
-                        <LayoutLanding>
+                        <LayoutSidebarHeaderContent>
                             <LandingA />
-                        </LayoutLanding>
+                        </LayoutSidebarHeaderContent>
                     </Route>
                     <Route path="/landing-b" exact >
-                        <LayoutLanding>
+                        <LayoutSidebarHeaderContent>
                             <LandingB />
-                        </LayoutLanding>
+                        </LayoutSidebarHeaderContent>
                     </Route>
-                    <Route path="/landing-c" exact >
-                        <LayoutLanding>
+                    <Route path="/landing-heighest-c" exact >
+                        <LayoutSidebarHeaderHighestContent>
                             <LandingC />
-                        </LayoutLanding>
+                        </LayoutSidebarHeaderHighestContent>
                     </Route>
                     <Route path="/403" exact >
-                        <LayoutError>
+                        <LayoutSidebarContent>
                             <PageAccessDenied />
-                        </LayoutError>
+                        </LayoutSidebarContent>
                     </Route>
                     <Route path="*" >
-                        <LayoutError>
+                        <LayoutSidebarContent>
                             <PageNotFound />
-                        </LayoutError>
+                        </LayoutSidebarContent>
                     </Route>
                 </Switch>
             </div>

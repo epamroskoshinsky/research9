@@ -1,0 +1,1 @@
+export { LayoutSidebarHeaderContent } from "./layout-sidebar-header-content.component"

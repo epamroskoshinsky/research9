@@ -1,0 +1,1 @@
+export { LayoutSidebarHeaderHighestContent } from "./layout-sidebar-header-highest-content.component"

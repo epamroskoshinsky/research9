@@ -26,9 +26,9 @@ export const LayoutProvider = ({ children }: PropsWithChildren<{}>) => {
     const toggleStructure = useCallback(() => {
         console.log("LayoutProvider", "toggleStructure");
         if (layoutMode === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT) {
-            setLayoutMode(LayoutModes.SIDEBAR_STRUCTURE_OUT_HEADER_CONTENT);
-        } else if (layoutMode === LayoutModes.SIDEBAR_HEADER_CONTENT) {
-            setLayoutMode(LayoutModes.SIDEBAR_STRUCTURE_IN_HEADER_CONTENT);
+            setLayoutMode(LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_OUT_HEADER_CONTENT);
+        } else if (layoutMode === LayoutModes.SIDEBAR_STRUCTURE_COLLAPSED_HEADER_CONTENT) {
+            setLayoutMode(LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_IN_HEADER_CONTENT);
         }
     }, [layoutMode, setLayoutMode]);
 
