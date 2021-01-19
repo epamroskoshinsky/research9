@@ -100,107 +100,93 @@ export const Layout = ( {
     const getView = useCallback( () => {
         if ( !layoutMode ) {
             return null;
-        }        
-        if ( layoutMode === LayoutModes.SIDEBAR_CONTENT ) {
-            return (
-                <LayoutWrapper>
-                    <LayoutWrapperNavigationSidebar>
-                        { navigationSidebar }
-                    </LayoutWrapperNavigationSidebar>
-                    <LayoutWrapperMain>
-                        <LayoutWrapperContent>
-                            { content }
-                        </LayoutWrapperContent>
-                    </LayoutWrapperMain>
-                </LayoutWrapper>
-            );
-        } else if ( 
+        }
+
+        let widthStructureCondition;
+        let navigationStructreShow;
+        let navigationHeaderShow;
+
+        if (
+            layoutMode === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT ||
+            layoutMode === LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_IN_HEADER_CONTENT ||
+            layoutMode === LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_OUT_HEADER_CONTENT                
+        ) {
+            widthStructureCondition = gridWrapperNavigationStructureWidth;
+            navigationStructreShow = true;
+            navigationHeaderShow = true;
+        }
+
+        if (
             layoutMode === LayoutModes.SIDEBAR_STRUCTURE_COLLAPSED_HEADER_CONTENT ||
             layoutMode === LayoutModes.SIDEBAR_HEADER_CONTENT ||
             layoutMode === LayoutModes.SIDEBAR_HEADER_HIGHEST_CONTENT
         ) {
-            return (
-                <LayoutWrapper>
-                    <LayoutWrapperNavigationSidebar>
-                        { navigationSidebar }
-                    </LayoutWrapperNavigationSidebar>
-                    <LayoutWrapperMain>
-                        <LayoutWrapperNavigationHeader highest={ layoutMode === LayoutModes.SIDEBAR_HEADER_HIGHEST_CONTENT } >
-                            { navigationHeader }
-                        </LayoutWrapperNavigationHeader>
-                        <LayoutWrapperContent header highest={ layoutMode === LayoutModes.SIDEBAR_HEADER_HIGHEST_CONTENT } >
-                            { content }
-                        </LayoutWrapperContent>
-                    </LayoutWrapperMain>
-                </LayoutWrapper>
-            );
-        } else if (
-            layoutMode === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT ||
-            layoutMode === LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_IN_HEADER_CONTENT ||
-            layoutMode === LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_OUT_HEADER_CONTENT
-        ) {
-            const view = (
-                <LayoutWrapper widthStructure={ gridWrapperNavigationStructureWidth } >
+            navigationHeaderShow = true;
+        }
+
+        return (
+            <CSSTransition
+                in={
+                    layoutMode === LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_IN_HEADER_CONTENT ||
+                    layoutMode === LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_OUT_HEADER_CONTENT
+                }
+                exit = { false }
+                timeout={ NAVIGATION_STRUCTURE_ANIMATION_DURATION }
+                onEntered={ () => {
+                    if ( layoutMode === LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_IN_HEADER_CONTENT ) {
+                        setLayoutMode( LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT );
+                    } else if ( layoutMode === LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_OUT_HEADER_CONTENT ) {
+                        setLayoutMode( LayoutModes.SIDEBAR_STRUCTURE_COLLAPSED_HEADER_CONTENT );
+                    }
+                } }
+                classNames={
+                    layoutMode === LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_IN_HEADER_CONTENT ? "structure-in" :
+                        layoutMode === LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_OUT_HEADER_CONTENT ? "structure-out" :
+                            undefined
+                }
+            >
+                <LayoutWrapper widthStructure={ widthStructureCondition } >
                     <LayoutWrapperNavigationSidebar>
                         {navigationSidebar}
                     </LayoutWrapperNavigationSidebar>
-                    <LayoutWrapperNavigationStructure
-                        ref={ gridWrapperNavigationStructureRef }
-                        widthStructure={ gridWrapperNavigationStructureWidth }
-                    >
-                        {navigationStructure}
-                        <Resizer
-                            max={ NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH_MAX }
-                            min={ NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH }
-                            onDragEnd={ handlerDragEnd }
-                        />
-                    </LayoutWrapperNavigationStructure>
+                    {
+                        navigationStructreShow ? (
+                            <LayoutWrapperNavigationStructure
+                                ref={ gridWrapperNavigationStructureRef }
+                                widthStructure={ gridWrapperNavigationStructureWidth }
+                            >
+                                {navigationStructure}
+                                <Resizer
+                                    max={ NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH_MAX }
+                                    min={ NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH }
+                                    onDragEnd={ handlerDragEnd }
+                                />
+                            </LayoutWrapperNavigationStructure>
+                        ) : null
+                    }
                     <LayoutWrapperMain>
-                        <LayoutWrapperNavigationHeader
-                            structure
-                            widthStructure={ gridWrapperNavigationStructureWidth }
-                        >
-                            {navigationHeader}
-                        </LayoutWrapperNavigationHeader>
+                        {
+                            navigationHeaderShow ? (
+                                <LayoutWrapperNavigationHeader
+                                    structure={ navigationStructreShow }
+                                    widthStructure={ widthStructureCondition }
+                                    highest={ layoutMode === LayoutModes.SIDEBAR_HEADER_HIGHEST_CONTENT }
+                                >
+                                    {navigationHeader}
+                                </LayoutWrapperNavigationHeader>
+                            ) : null
+                        }
                         <LayoutWrapperContent
-                            structure
-                            header
-                            widthStructure={ gridWrapperNavigationStructureWidth }
+                            structure={ navigationStructreShow }
+                            header={ navigationHeaderShow }
+                            widthStructure={ widthStructureCondition }
                         >
                             {content}
                         </LayoutWrapperContent>
                     </LayoutWrapperMain>
                 </LayoutWrapper>
-            );
-            if ( layoutMode === LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT ) {
-                return view;
-            } else if ( layoutMode === LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_IN_HEADER_CONTENT ) {
-                return (
-                    <CSSTransition
-                        in={ true }
-                        appear={ true }
-                        timeout={ NAVIGATION_STRUCTURE_ANIMATION_DURATION }
-                        onEntered={ () => setLayoutMode( LayoutModes.SIDEBAR_STRUCTURE_HEADER_CONTENT ) }
-                        classNames="structure-in"
-                    >
-                        { view }
-                    </CSSTransition>
-                );
-            } else if ( layoutMode === LayoutModes.SIDEBAR_STRUCTURE_TRANSITION_OUT_HEADER_CONTENT ) {
-                return (
-                    <CSSTransition
-                        in={ true }
-                        appear={ true }
-                        timeout={ NAVIGATION_STRUCTURE_ANIMATION_DURATION }
-                        onEntered={ () => setLayoutMode( LayoutModes.SIDEBAR_STRUCTURE_COLLAPSED_HEADER_CONTENT ) }
-                        classNames="structure-out"
-                    >
-                        { view }
-                    </CSSTransition>
-                );
-            }
-        }
-        return null;
+            </CSSTransition>
+        );
     }, [
         applied,
         content,

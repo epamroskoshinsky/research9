@@ -90,7 +90,7 @@ export const LayoutWrapper = styled.div<{ widthStructure?: number }>`
     height: 100%;
     width: 100%;
 
-    &.structure-in-appear {
+    &.structure-in-enter {
         ${LayoutWrapperNavigationStructure} {
             width: 0;
         }
@@ -102,7 +102,7 @@ export const LayoutWrapper = styled.div<{ widthStructure?: number }>`
         }
     }
 
-    &.structure-in-appear-active {
+    &.structure-in-enter-active {
         ${LayoutWrapperNavigationStructure} {
             width: ${ ( { widthStructure } ) => widthStructure === undefined ? NAVIGATION_STRUCTURE_WIDTH : widthStructure }px;
             transition: width ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;
@@ -117,7 +117,7 @@ export const LayoutWrapper = styled.div<{ widthStructure?: number }>`
         }
     }
 
-    &.structure-out-appear {
+    &.structure-out-enter {
         ${LayoutWrapperNavigationStructure} {
             width: ${ ( { widthStructure } ) => widthStructure === undefined ? NAVIGATION_STRUCTURE_WIDTH : widthStructure }px;
         }
@@ -129,7 +129,7 @@ export const LayoutWrapper = styled.div<{ widthStructure?: number }>`
         }
     }
 
-    &.structure-out-appear-active {
+    &.structure-out-enter-active {
         ${LayoutWrapperNavigationStructure} {
             width: 0px;
             transition: width ${NAVIGATION_STRUCTURE_ANIMATION_DURATION}ms;

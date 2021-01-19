@@ -28,7 +28,7 @@ export function App () {
 
     return (
         <Router>
-            <div className="content" >
+            <div className="app" >
                 <Switch>
                     <Route path="/unit-a" exact >
                         <LayoutSidebarStructureHeaderContent>
