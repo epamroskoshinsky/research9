@@ -149,21 +149,17 @@ export const Layout = ( {
                     <LayoutWrapperNavigationSidebar>
                         {navigationSidebar}
                     </LayoutWrapperNavigationSidebar>
-                    {
-                        navigationStructreShow ? (
-                            <LayoutWrapperNavigationStructure
-                                ref={ gridWrapperNavigationStructureRef }
-                                widthStructure={ gridWrapperNavigationStructureWidth }
-                            >
-                                {navigationStructure}
-                                <Resizer
-                                    max={ NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH_MAX }
-                                    min={ NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH }
-                                    onDragEnd={ handlerDragEnd }
-                                />
-                            </LayoutWrapperNavigationStructure>
-                        ) : null
-                    }
+                    <LayoutWrapperNavigationStructure
+                        ref={ gridWrapperNavigationStructureRef }
+                        widthStructure={ widthStructureCondition === undefined ? 0 : widthStructureCondition }
+                    >
+                        {navigationStructure}
+                        <Resizer
+                            max={ NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH_MAX }
+                            min={ NAVIGATION_SIDEBAR_WIDTH + NAVIGATION_STRUCTURE_WIDTH }
+                            onDragEnd={ handlerDragEnd }
+                        />
+                    </LayoutWrapperNavigationStructure>
                     <LayoutWrapperMain>
                         {
                             navigationHeaderShow ? (
